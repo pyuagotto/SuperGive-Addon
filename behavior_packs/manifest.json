@@ -25,13 +25,13 @@
                 1,
                 0
             ],
-            "entry": "scripts/index.js"
+            "entry": "scripts/registerCommand.js"
         }
     ],
     "dependencies": [
         {
             "module_name": "@minecraft/server",
-            "version": "2.1.0"
+            "version": "2.2.0-beta"
         }
     ]
 }

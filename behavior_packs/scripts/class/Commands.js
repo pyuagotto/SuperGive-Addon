@@ -1,80 +1,47 @@
-import {
-    CustomCommandOrigin,
-    ItemStack,
-    system,
-    ItemDurabilityComponent,
-    ItemEnchantableComponent,
-    EnchantmentType,
-    ItemPotionComponent,
-    Player,
-    EquipmentSlot,
-    CustomCommandStatus,
-    world,
-    Container,
-    ItemType,
-    EntityComponentTypes,
-    BlockComponentTypes,
-    ItemComponentTypes,
-    EntityEquippableComponent
-} from "@minecraft/server";
+import { ItemStack, system, ItemDurabilityComponent, ItemEnchantableComponent, EnchantmentType, ItemPotionComponent, CustomCommandStatus, world, EntityComponentTypes, BlockComponentTypes, ItemComponentTypes } from "@minecraft/server";
 import { convertCustomDataToJson } from "../utils";
 import { potionData, potionKeyMap } from "../constants/potionData";
-import { potionLiquidMap, slotMap, lockModeMap, EntityEquipmentSlot } from "../constants/commandConstants";
-import { CustomData,SuperGiveCommand, SuperReplaceItemBlockCommand, SuperReplaceItemEntityCommand } from "../constants/commandConstants";
-
-type SetItemOptions = {
-    container?: Container;
-    slotId?: number;
-    equippable?: EntityEquippableComponent
-    equipSlot?: EquipmentSlot;
-};
-
+import { potionLiquidMap, slotMap, lockModeMap } from "../constants/commandConstants";
 export class Commands {
-    private readonly origin: CustomCommandOrigin;
-    private amount: number;
-    private readonly data: number;
-    private itemStack: ItemStack;
-    private customDataToJson: CustomData | string | undefined; /**正しいデータ | エラー | 存在しない */
-    private readonly invalidCustomDataMessage: string;
-
-    constructor(origin: CustomCommandOrigin, itemType: ItemType, amount: number = 1, data: number = 0, customData?: string) {
+    constructor(origin, itemType, amount = 1, data = 0, customData) {
         this.origin = origin;
         this.amount = amount;
         this.data = data;
         this.itemStack = new ItemStack(itemType.id, 1);
-
         // customDataの型チェック
         this.customDataToJson = customData ? convertCustomDataToJson(customData) : undefined;
         if (typeof this.customDataToJson === "string") {
             this.invalidCustomDataMessage = this.customDataToJson;
         }
     }
-
     //データ値とカスタムデータをアイテムに適用
-    private applyCustomData(data: number, customData?: CustomData) {
+    applyCustomData(data, customData) {
         if (customData) {
             this.applyComponents(this.itemStack, data, customData);
-
-            if (customData.custom_name) this.itemStack.nameTag = customData.custom_name;
-            if (customData.lore) this.itemStack.setLore(customData.lore);
-            if (typeof customData.keep_on_death === "boolean") this.itemStack.keepOnDeath = customData.keep_on_death;
-            if (customData.can_place_on) this.itemStack.setCanPlaceOn(customData.can_place_on);
-            if (customData.can_destroy) this.itemStack.setCanDestroy(customData.can_destroy);
-            if (customData.item_lock) this.itemStack.lockMode = lockModeMap[customData.item_lock];
+            if (customData.custom_name)
+                this.itemStack.nameTag = customData.custom_name;
+            if (customData.lore)
+                this.itemStack.setLore(customData.lore);
+            if (typeof customData.keep_on_death === "boolean")
+                this.itemStack.keepOnDeath = customData.keep_on_death;
+            if (customData.can_place_on)
+                this.itemStack.setCanPlaceOn(customData.can_place_on);
+            if (customData.can_destroy)
+                this.itemStack.setCanDestroy(customData.can_destroy);
+            if (customData.item_lock)
+                this.itemStack.lockMode = lockModeMap[customData.item_lock];
         }
-        
-        else{
+        else {
             this.applyComponents(this.itemStack, data);
         }
     }
-
     //アイテムのコンポーネントを適用
-    private applyComponents(itemStack: ItemStack, data: number, customData?: CustomData) {
+    applyComponents(itemStack, data, customData) {
         for (const component of itemStack.getComponents()) {
             if (component instanceof ItemDurabilityComponent && data) {
                 component.damage = Math.min(data, component.maxDurability);
             }
-            if (component instanceof ItemEnchantableComponent && customData?.enchantments) {
+            if (component instanceof ItemEnchantableComponent && (customData === null || customData === void 0 ? void 0 : customData.enchantments)) {
                 this.applyEnchantments(component, customData.enchantments);
             }
             if (component instanceof ItemPotionComponent) {
@@ -82,19 +49,16 @@ export class Commands {
             }
         }
     }
-
     //エンチャントを適用
-    private applyEnchantments(component: ItemEnchantableComponent, enchantments: Record<string, number>) {
+    applyEnchantments(component, enchantments) {
         for (const [enchantType, level] of Object.entries(enchantments)) {
             const enchantment = { type: new EnchantmentType(enchantType), level };
-            if (component.canAddEnchantment(enchantment)) {
+            if (component.canAddEnchantment(enchantment))
                 component.addEnchantment(enchantment);
-            }
         }
     }
-
     //ポーションデータを適用
-    private applyPotionData(itemStack: ItemStack, data: number) {
+    applyPotionData(itemStack, data) {
         const potion = potionData[data];
         const id = itemStack.typeId;
         if (potion) {
@@ -109,15 +73,13 @@ export class Commands {
             });
         }
     }
-
     //ポーションのローカライズキー取得
-    private getPotionLocalizationKey(): string | undefined {
+    getPotionLocalizationKey() {
         let itemLocalizationKey = "";
-        if (this.data > 46) return;
-
+        if (this.data > 46)
+            return;
         const potion = potionData[this.data];
         const potionId = potionKeyMap[potion.effect];
-
         if (potionId) {
             switch (this.itemStack.typeId) {
                 case "minecraft:potion":
@@ -133,9 +95,9 @@ export class Commands {
         }
         return itemLocalizationKey;
     }
-
     // ポーションデータやカスタムデータのバリデーションとローカライズキー取得をまとめる
-    private validateAndGetLocalizationKey(): { valid: boolean, message?: string, itemLocalizationKey: string } {
+    validateAndGetLocalizationKey() {
+        var _a;
         let itemLocalizationKey = this.itemStack.localizationKey;
         if (this.itemStack.getComponent(ItemComponentTypes.Potion)) {
             if (this.data > 46) {
@@ -144,135 +106,131 @@ export class Commands {
             if (this.data >= 28 && this.data <= 30) {
                 return { valid: false, message: "Regeneration potion is not supported", itemLocalizationKey };
             }
-            itemLocalizationKey = this.getPotionLocalizationKey() ?? itemLocalizationKey;
+            itemLocalizationKey = (_a = this.getPotionLocalizationKey()) !== null && _a !== void 0 ? _a : itemLocalizationKey;
         }
         return { valid: true, itemLocalizationKey };
     }
-
-    private setItemAmount(){
-        if(!this.itemStack.isStackable) this.itemStack.amount = 1;
-        else if(this.amount <= this.itemStack.maxAmount) this.itemStack.amount = this.amount;
-        else this.itemStack.amount = this.itemStack.maxAmount;
+    setItemAmount() {
+        if (!this.itemStack.isStackable)
+            this.itemStack.amount = 1;
+        else if (this.amount <= this.itemStack.maxAmount)
+            this.itemStack.amount = this.amount;
+        else
+            this.itemStack.amount = this.itemStack.maxAmount;
     }
-
-    private giveItem(player: Player, itemStack: ItemStack): void {
+    giveItem(player, itemStack) {
         const inventory = player.getComponent(EntityComponentTypes.Inventory);
-        if (!inventory) return;
-
+        if (!inventory)
+            return;
         const { container } = inventory;
-        if (!container) return;
-
+        if (!container)
+            return;
         //スタック不可能なアイテムの場合分割する
-        if(!itemStack.isStackable) {
+        if (!itemStack.isStackable) {
             itemStack.amount = 1;
-
-            while(this.amount > 0) {
+            while (this.amount > 0) {
                 const item = container.addItem(itemStack);
                 this.amount--;
-                if (!item) continue;
+                if (!item)
+                    continue;
                 player.dimension.spawnItem(item, player.location);
             }
-
             return;
         }
-
         //スタック可能なアイテムの場合、インベントリ内のアイテムを探す
         for (let slot = 0; slot < container.size; slot++) {
             const slotItemStack = container.getItem(slot);
-
-            if (!slotItemStack) continue;
-            if (!slotItemStack.isStackableWith(itemStack)) continue;
-            if (slotItemStack.maxAmount === slotItemStack.amount) continue;
-
+            if (!slotItemStack)
+                continue;
+            if (!slotItemStack.isStackableWith(itemStack))
+                continue;
+            if (slotItemStack.maxAmount === slotItemStack.amount)
+                continue;
             const maxAmountToAdd = slotItemStack.maxAmount - slotItemStack.amount;
-
             if (this.amount <= maxAmountToAdd) {
                 slotItemStack.amount += this.amount;
                 container.setItem(slot, slotItemStack);
                 return;
-            } else {
+            }
+            else {
                 this.amount -= maxAmountToAdd;
                 slotItemStack.amount = slotItemStack.maxAmount;
                 container.setItem(slot, slotItemStack);
             }
         }
-
         //インベントリ内にアイテムがない場合、またはスタックできない場合
         while (this.amount > 0) {
-            if(this.amount <= itemStack.maxAmount){
+            if (this.amount <= itemStack.maxAmount) {
                 itemStack.amount = this.amount;
                 const overflowingItemStack = container.addItem(itemStack);
-
-                if(overflowingItemStack) break;
+                if (overflowingItemStack)
+                    break;
                 return;
-            }else{
+            }
+            else {
                 itemStack.amount = itemStack.maxAmount;
                 const overflowingItemStack = container.addItem(itemStack);
-
-                if(overflowingItemStack) break;
-
+                if (overflowingItemStack)
+                    break;
                 this.amount -= itemStack.maxAmount;
             }
         }
-        
         while (this.amount > 0) {
-            if(this.amount <= itemStack.maxAmount) itemStack.amount = this.amount;
-            else itemStack.amount = itemStack.maxAmount;
-            
+            if (this.amount <= itemStack.maxAmount)
+                itemStack.amount = this.amount;
+            else
+                itemStack.amount = itemStack.maxAmount;
             player.dimension.spawnItem(itemStack, player.location);
             this.amount -= itemStack.maxAmount;
         }
     }
-
-    private setItem({ container, slotId, equippable, equipSlot }: SetItemOptions, player?: Player): void {
+    setItem({ container, slotId, equippable, equipSlot }, player) {
         system.run(() => {
             if (typeof this.customDataToJson !== "string") {
                 this.applyCustomData(this.data, this.customDataToJson);
             }
-
             if (equippable && equipSlot) {
                 this.setItemAmount();
                 equippable.setEquipment(equipSlot, this.itemStack);
-            } 
+            }
             else if (container && typeof slotId === "number") {
                 this.setItemAmount();
                 container.setItem(slotId, this.itemStack);
-            } 
+            }
             else if (player) {
                 this.giveItem(player, this.itemStack);
             }
         });
     }
-
-    public give(player: Player): { status: CustomCommandStatus, message?: string } | undefined{
-        if (this.invalidCustomDataMessage) return { status: CustomCommandStatus.Failure, message: this.invalidCustomDataMessage };
-
-        const container = player.getComponent(EntityComponentTypes.Inventory)?.container;
-        if (!container) return { status: CustomCommandStatus.Failure, message: "Player inventory not found." };
-        
+    give(player) {
+        var _a;
+        if (this.invalidCustomDataMessage)
+            return { status: CustomCommandStatus.Failure, message: this.invalidCustomDataMessage };
+        const container = (_a = player.getComponent(EntityComponentTypes.Inventory)) === null || _a === void 0 ? void 0 : _a.container;
+        if (!container)
+            return { status: CustomCommandStatus.Failure, message: "Player inventory not found." };
         const { valid, message, itemLocalizationKey } = this.validateAndGetLocalizationKey();
-        if (!valid) return { status: CustomCommandStatus.Failure, message };
-
+        if (!valid)
+            return { status: CustomCommandStatus.Failure, message };
         this.setItem({ container }, player);
         return { status: CustomCommandStatus.Success, message: itemLocalizationKey };
     }
-
-    public replaceitem_player(player: Player, slot: EntityEquipmentSlot, slotId: number): { status: CustomCommandStatus, message?: string } {
-        if (this.invalidCustomDataMessage) return { status: CustomCommandStatus.Failure, message: this.invalidCustomDataMessage };
-
+    replaceitem_player(player, slot, slotId) {
+        var _a;
+        if (this.invalidCustomDataMessage)
+            return { status: CustomCommandStatus.Failure, message: this.invalidCustomDataMessage };
         const { valid, message, itemLocalizationKey } = this.validateAndGetLocalizationKey();
-        if (!valid) return { status: CustomCommandStatus.Failure, message };
-
+        if (!valid)
+            return { status: CustomCommandStatus.Failure, message };
         const equippable = player.getComponent(EntityComponentTypes.Equippable);
         if (slot.startsWith("slot.armor") || slot.startsWith("slot.weapon")) {
             this.setItem({ equippable, equipSlot: slotMap[slot] }, player);
             return { status: CustomCommandStatus.Success, message: player.name };
-        } 
-        
+        }
         else {
-            const container = player.getComponent(EntityComponentTypes.Inventory)?.container;
-            if (!container) return;
-            
+            const container = (_a = player.getComponent(EntityComponentTypes.Inventory)) === null || _a === void 0 ? void 0 : _a.container;
+            if (!container)
+                return { status: CustomCommandStatus.Failure, message: "Player inventory not found." };
             switch (slot) {
                 case "slot.inventory": {
                     if (slotId + 9 < container.size) {
@@ -289,27 +247,20 @@ export class Commands {
             return { status: CustomCommandStatus.Failure, message: `§cCould not replace slot ${slotId}, must be a value between 0 and ${container.size}.§r` };
         }
     }
-
     /**
      * /replaceitem block
      */
-    public replaceitem_block(
-        position: { x: number; y: number; z: number },
-        slot: string,
-        slotId: number
-    ): { status: CustomCommandStatus, message?: string } {
+    replaceitem_block(position, slot, slotId) {
+        var _a, _b, _c, _d;
         if (this.invalidCustomDataMessage) {
             return { status: CustomCommandStatus.Failure, message: this.invalidCustomDataMessage };
         }
-
         const { valid, message, itemLocalizationKey } = this.validateAndGetLocalizationKey();
         if (!valid) {
             return { status: CustomCommandStatus.Failure, message };
         }
-
-        const dimension = this.origin.sourceEntity?.dimension || this.origin.sourceBlock?.dimension || world.getDimension("overworld");
-        const container = dimension.getBlock(position)?.getComponent(BlockComponentTypes.Inventory)?.container;
-
+        const dimension = ((_a = this.origin.sourceEntity) === null || _a === void 0 ? void 0 : _a.dimension) || ((_b = this.origin.sourceBlock) === null || _b === void 0 ? void 0 : _b.dimension) || world.getDimension("overworld");
+        const container = (_d = (_c = dimension.getBlock(position)) === null || _c === void 0 ? void 0 : _c.getComponent(BlockComponentTypes.Inventory)) === null || _d === void 0 ? void 0 : _d.container;
         if (container) {
             if (slotId < container.size) {
                 this.setItem({ container, slotId });
@@ -320,67 +271,58 @@ export class Commands {
         return { status: CustomCommandStatus.Failure, message: `Block at (${Math.floor(position.x)},${Math.floor(position.y)},${Math.floor(position.z)}) is not a container.` };
     }
 }
-
-
-
 // superGiveCommand
-export const superGiveCommand: SuperGiveCommand = function (origin, players, itemType, amount = 1, data, customData) {
-    let itemLocalizationKey: string | undefined = "";
+export const superGiveCommand = function (origin, players, itemType, amount = 1, data, customData) {
+    let itemLocalizationKey = "";
     const commands = new Commands(origin, itemType, amount, data, customData);
-
     for (const player of players) {
         const result = commands.give(player);
-        if (result?.status === CustomCommandStatus.Failure) {
+        if ((result === null || result === void 0 ? void 0 : result.status) === CustomCommandStatus.Failure) {
             return { status: CustomCommandStatus.Failure, message: result.message };
         }
-        itemLocalizationKey = result.message;
+        itemLocalizationKey = result === null || result === void 0 ? void 0 : result.message;
     }
-
     return {
         status: CustomCommandStatus.Success,
         message: `Gave %${itemLocalizationKey} * ${amount} to ${players.map(player => player.name).join(", ")}`
     };
 };
-
 // superReplaceItemEntityCommand
-export const superReplaceItemEntityCommand: SuperReplaceItemEntityCommand = function (origin, players, slot, slotId, itemType, amount = 1, data, customData) {
+export const superReplaceItemEntityCommand = function (origin, players, slot, slotId, itemType, amount = 1, data, customData) {
     const itemStack = new ItemStack(itemType.id);
-    const commandResultList: { status: CustomCommandStatus, message?: string }[] = [];
+    const commandResultList = [];
     const commands = new Commands(origin, itemType, amount, data, customData);
-
     for (const player of players) {
         const result = commands.replaceitem_player(player, slot, slotId);
-        if (result?.status === CustomCommandStatus.Failure) return { status: CustomCommandStatus.Failure, message: result.message };
+        if ((result === null || result === void 0 ? void 0 : result.status) === CustomCommandStatus.Failure)
+            return { status: CustomCommandStatus.Failure, message: result.message };
         commandResultList.push(result);
     }
-
-    const successTargets: string[] = [];
-    const failureMessages: string[] = [];
+    const successTargets = [];
+    const failureMessages = [];
     let resultMessage = "";
-
     for (const result of commandResultList) {
-        if (result?.status === CustomCommandStatus.Success) {
-            if (result.message) successTargets.push(result.message);
-        } else if (result?.status === CustomCommandStatus.Failure) {
-            if (result.message) failureMessages.push(result.message);
+        if ((result === null || result === void 0 ? void 0 : result.status) === CustomCommandStatus.Success) {
+            if (result.message)
+                successTargets.push(result.message);
+        }
+        else if ((result === null || result === void 0 ? void 0 : result.status) === CustomCommandStatus.Failure) {
+            if (result.message)
+                failureMessages.push(result.message);
         }
     }
-
     if (failureMessages.length > 0) {
         for (const message of failureMessages) {
             resultMessage += message + "\n";
         }
     }
-
     if (successTargets.length > 0) {
         resultMessage += `Replaced ${slot} slot ${slotId} of ${successTargets.join(", ")} with ${amount} * %${itemStack.localizationKey}`;
     }
-
     return { status: CustomCommandStatus.Success, message: resultMessage };
 };
-
 // superReplaceItemBlockCommand
-export const superReplaceItemBlockCommand: SuperReplaceItemBlockCommand = function (origin, position, slot, slotId, itemType, amount = 1, data, customData) {
+export const superReplaceItemBlockCommand = function (origin, position, slot, slotId, itemType, amount = 1, data, customData) {
     const commands = new Commands(origin, itemType, amount, data, customData);
     return commands.replaceitem_block(position, slot, slotId);
 };

@@ -7,7 +7,7 @@
        "noLib":false,
        "emitDecoratorMetadata":true,
        "experimentalDecorators":true,
-       "sourceMap":true,
+       "sourceMap":false,
        "pretty":true,
        "forceConsistentCasingInFileNames": true,
        "strict": true,
@@ -16,15 +16,15 @@
        "noImplicitAny":true,
        "noImplicitReturns":false,
        "noImplicitUseStrict":false,
-       "outDir":"C:\\Users\\pyuag\\AppData\\Local\\Packages\\Microsoft.MinecraftUWP_8wekyb3d8bbwe\\LocalState\\games\\com.mojang\\development_behavior_packs\\test",
-       "rootDir": ".",
+       "outDir":"behavior_packs/scripts",
+       "rootDir": "src",
        "baseUrl":"behavior_packs/",
        "listFiles":false,
        "noEmitHelpers":true,
        "skipLibCheck": true
     },
     "include":[ 
-       "scripts/**/*"
+       "src/**/*"
     ],
     "exclude": ["lib", "dist", "node_modules"],
     "compileOnSave":false

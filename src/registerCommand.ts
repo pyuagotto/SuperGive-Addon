@@ -2,7 +2,6 @@ import { system, CustomCommandParamType, CommandPermissionLevel, CustomCommandOr
 import { superGiveCommand, superReplaceItemEntityCommand, superReplaceItemBlockCommand } from "./class/Commands";
 
 system.beforeEvents.startup.subscribe((ev) => {
-
     const registerCommand = function(
         name: string, 
         description: string, 
