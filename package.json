@@ -1,0 +1,27 @@
+{
+  "name": "scripting-starter",
+  "version": "0.1.0",
+  "productName": "Minecraft TypeScript Starter Project",
+  "description": "Minecraft TypeScript Starter Project",
+  "private": true,
+  "devDependencies": {
+    "cpx": "^1.5.0",
+    "eslint-plugin-minecraft-linting": "^2.0.1",
+    "source-map": "^0.7.4",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.5.4"
+  },
+  "scripts": {
+    "lint": "eslint . --ext .ts",
+    "build": "npm run build:ts && npm run copy-scripts-assets",
+    "build:ts": "tsc",
+    "clean": "rimraf \"C:/Users/pyuag/AppData/Local/Packages/Microsoft.MinecraftUWP_8wekyb3d8bbwe/LocalState/games/com.mojang/development_behavior_packs/test\"",
+    "copy-scripts-assets": "npm run copy-scripts && npm run copy-assets",
+    "copy-scripts": "cpx \"src/**/*.{json,mcfunction,txt,js,md}\" \"C:/Users/pyuag/AppData/Local/Packages/Microsoft.MinecraftUWP_8wekyb3d8bbwe/LocalState/games/com.mojang/development_behavior_packs/test/scripts\"",
+    "copy-assets": "cpx \"behavior_packs/**/*\" \"C:/Users/pyuag/AppData/Local/Packages/Microsoft.MinecraftUWP_8wekyb3d8bbwe/LocalState/games/com.mojang/development_behavior_packs/test\""
+  },
+  "dependencies": {
+    "@minecraft/server": "^2.1.0",
+    "@minecraft/server-ui": "^2.0.0"
+  }
+}
