@@ -1,4 +1,4 @@
-import { system, CustomCommandParamType, CommandPermissionLevel, CustomCommandOrigin, CustomCommandResult, CustomCommandParameter } from "@minecraft/server";
+import { system, CustomCommandParamType, CommandPermissionLevel, CustomCommandOrigin, CustomCommandResult, CustomCommandParameter, world, ItemComponentTypes } from "@minecraft/server";
 import { superGiveCommand, superReplaceItemEntityCommand, superReplaceItemBlockCommand } from "./class/Commands";
 
 system.beforeEvents.startup.subscribe((ev) => {

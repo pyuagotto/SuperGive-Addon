@@ -26,6 +26,6 @@
     "include":[ 
        "src/**/*"
     ],
-    "exclude": ["lib", "dist", "node_modules"],
+    "exclude": ["node_modules"],
     "compileOnSave":false
  }

@@ -1,8 +1,8 @@
 {
-  "name": "scripting-starter",
+  "name": "super-give-command",
   "version": "0.1.0",
-  "productName": "Minecraft TypeScript Starter Project",
-  "description": "Minecraft TypeScript Starter Project",
+  "productName": "",
+  "description": "",
   "private": true,
   "devDependencies": {
     "cpx": "^1.5.0",
@@ -15,14 +15,13 @@
     "lint": "eslint . --ext .ts",
     "build": "npm run build:ts && npm run copy-scripts-assets",
     "build:ts": "tsc",
-    "clean": "rimraf \"%LocalAppData%/Packages/Microsoft.MinecraftUWP_8wekyb3d8bbwe/LocalState/games/com.mojang/development_behavior_packs/test\"",
+    "clean": "rimraf \"%LocalAppData%/Packages/Microsoft.MinecraftUWP_8wekyb3d8bbwe/LocalState/games/com.mojang/development_behavior_packs/SuperGive-Addon\"",
     "copy-scripts-assets": "npm run copy-scripts && npm run copy-assets",
-    "copy-scripts": "cpx \"scripts/**/*.{json,mcfunction,txt,js,md}\" \"%LocalAppData%/Packages/Microsoft.MinecraftUWP_8wekyb3d8bbwe/LocalState/games/com.mojang/development_behavior_packs/test/scripts\"",
-    "copy-assets": "cpx \"behavior_packs/**/*\" \"%LocalAppData%/Packages/Microsoft.MinecraftUWP_8wekyb3d8bbwe/LocalState/games/com.mojang/development_behavior_packs/test\""
+    "copy-scripts": "cpx \"scripts/**/*.{json,mcfunction,txt,js,md}\" \"%LocalAppData%/Packages/Microsoft.MinecraftUWP_8wekyb3d8bbwe/LocalState/games/com.mojang/development_behavior_packs/SuperGive-Addon/scripts\"",
+    "copy-assets": "cpx \"behavior_packs/**/*\" \"%LocalAppData%/Packages/Microsoft.MinecraftUWP_8wekyb3d8bbwe/LocalState/games/com.mojang/development_behavior_packs/SuperGive-Addon\""
   },
   "dependencies": {
     "@minecraft/server": "^2.2.0-beta.1.21.100-stable",
-    "@minecraft/server-ui": "^2.0.0",
     "@minecraft/vanilla-data": "^1.21.100"
   }
 }
