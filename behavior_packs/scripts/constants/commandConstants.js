@@ -1,5 +1,4 @@
 import { EquipmentSlot, ItemLockMode } from "@minecraft/server";
-import { MinecraftPotionLiquidTypes } from "../lib/index";
 export const customDataList = {
     custom_name: String,
     lore: Array,
@@ -28,9 +27,4 @@ export const lockModeMap = {
     "lock_in_inventory": ItemLockMode.inventory,
     "lock_in_slot": ItemLockMode.slot,
     "none": ItemLockMode.none,
-};
-export const potionLiquidMap = {
-    "minecraft:potion": MinecraftPotionLiquidTypes.Regular,
-    "minecraft:splash_potion": MinecraftPotionLiquidTypes.Splash,
-    "minecraft:lingering_potion": MinecraftPotionLiquidTypes.Lingering
 };

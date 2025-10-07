@@ -1,5 +1,4 @@
 import { CustomCommandOrigin, CustomCommandStatus, EquipmentSlot, ItemLockMode, ItemType, Player } from "@minecraft/server";
-import { MinecraftPotionLiquidTypes } from "../lib/index";
 
 // コマンド関数の型定義
 export type SuperGiveCommand = (
@@ -90,10 +89,4 @@ export const lockModeMap: Record<string, ItemLockMode> = {
     "lock_in_inventory": ItemLockMode.inventory,
     "lock_in_slot": ItemLockMode.slot,
     "none": ItemLockMode.none,
-};
-
-export const potionLiquidMap: Record<string, MinecraftPotionLiquidTypes> = {
-    "minecraft:potion": MinecraftPotionLiquidTypes.Regular,
-    "minecraft:splash_potion": MinecraftPotionLiquidTypes.Splash,
-    "minecraft:lingering_potion": MinecraftPotionLiquidTypes.Lingering
 };

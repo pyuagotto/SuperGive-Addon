@@ -15,11 +15,12 @@ import {
     EntityComponentTypes,
     BlockComponentTypes,
     ItemComponentTypes,
-    EntityEquippableComponent
+    EntityEquippableComponent,
+    Potions
 } from "@minecraft/server";
 import { convertCustomDataToJson } from "../utils";
 import { potionData, potionKeyMap } from "../constants/potionData";
-import { potionLiquidMap, slotMap, lockModeMap, EntityEquipmentSlot } from "../constants/commandConstants";
+import { slotMap, lockModeMap, EntityEquipmentSlot } from "../constants/commandConstants";
 import { CustomData,SuperGiveCommand, SuperReplaceItemBlockCommand, SuperReplaceItemEntityCommand } from "../constants/commandConstants";
 
 type SetItemOptions = {
@@ -93,23 +94,28 @@ export class Commands {
 
     //ポーションデータを適用
     private applyPotionData(itemStack: ItemStack, data: number) {
-        const potion = potionData[data];
-        const id = itemStack.typeId;
-        if (potion) {
-            if (potion.effect === "Regeneration") {
-                console.warn(`Potion effect ${potion.effect} is not supported. Please use a different effect.`);
-                return;
-            }
-            this.itemStack = ItemStack.createPotion({
-                effect: potion.effect,
-                modifier: potion.modifier,
-                liquid: potionLiquidMap[id],
-            });
+        let n = 0;
+
+        switch(itemStack.typeId){
+            case "minecraft:potion":
+                n = 0;
+                break;
+
+            case "minecraft:splash_potion":
+                n = 1;
+                break;
+
+            case "minecraft:lingering_potion":
+                n = 2;
+                break;
         }
+
+        this.itemStack = Potions.resolve(Potions.getAllEffectTypes()[data], Potions.getAllDeliveryTypes()[n]);
     }
 
     //ポーションのローカライズキー取得
     private getPotionLocalizationKey(): string | undefined {
+        
         let itemLocalizationKey = "";
         if (this.data > 46) return;
 
@@ -129,7 +135,7 @@ export class Commands {
                     break;
             }
         }
-        return itemLocalizationKey;
+        return this.itemStack.localizationKey;
     }
 
     // ポーションデータやカスタムデータのバリデーションとローカライズキー取得をまとめる
@@ -138,9 +144,6 @@ export class Commands {
         if (this.itemStack.getComponent(ItemComponentTypes.Potion)) {
             if (this.data > 46) {
                 return { valid: false, message: "Invalid command syntax: no such potion exists with that data value", itemLocalizationKey };
-            }
-            if (this.data >= 28 && this.data <= 30) {
-                return { valid: false, message: "Regeneration potion is not supported", itemLocalizationKey };
             }
             itemLocalizationKey = this.getPotionLocalizationKey() ?? itemLocalizationKey;
         }
