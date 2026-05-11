@@ -56,7 +56,7 @@ export class Commands {
         data: number,
         customData?: string
     ): Commands | CommandResult {
-        const itemStack = Commands.resolveItemStack(itemId, amount, data);
+        const itemStack = Commands.resolveItemStack(itemId, data);
         if (!(itemStack instanceof ItemStack)) return itemStack;
         const commands = new Commands();
         commands.origin = origin;
@@ -73,8 +73,8 @@ export class Commands {
     }
 
     // 通常アイテムはそのまま返し、ポーションならdata値を反映したItemStackへ変換する
-    private static resolveItemStack(itemId: string, amount: number, data: number): ItemStack | CommandResult {
-        const itemStack = new ItemStack(itemId, amount);
+    private static resolveItemStack(itemId: string, data: number): ItemStack | CommandResult {
+        const itemStack = new ItemStack(itemId, 1);
         if (!itemStack.getComponent(ItemComponentTypes.Potion)) return itemStack;
 
         const potionEffectType = Potions.getAllEffectTypes()[data];
@@ -82,7 +82,7 @@ export class Commands {
 
         const deliveryType = Potions.getAllDeliveryTypes()[Commands.getPotionDeliveryTypeIndex(itemStack.typeId)];
         const resolvedPotion = Potions.resolve(potionEffectType, deliveryType);
-        resolvedPotion.amount = amount;
+        resolvedPotion.amount = 1;
         return resolvedPotion;
     }
 

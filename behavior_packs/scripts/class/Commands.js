@@ -22,7 +22,7 @@ export class Commands {
     }
     // 通常アイテムはそのまま返し、ポーションならdata値を反映したItemStackへ変換する
     static resolveItemStack(itemId, amount, data) {
-        const itemStack = new ItemStack(itemId, amount);
+        const itemStack = new ItemStack(itemId, 1);
         if (!itemStack.getComponent(ItemComponentTypes.Potion))
             return itemStack;
         const potionEffectType = Potions.getAllEffectTypes()[data];
@@ -30,7 +30,7 @@ export class Commands {
             return { status: CustomCommandStatus.Failure, message: INVALID_POTION_DATA_MESSAGE };
         const deliveryType = Potions.getAllDeliveryTypes()[Commands.getPotionDeliveryTypeIndex(itemStack.typeId)];
         const resolvedPotion = Potions.resolve(potionEffectType, deliveryType);
-        resolvedPotion.amount = amount;
+        resolvedPotion.amount = 1;
         return resolvedPotion;
     }
     // ポーションのitemIdから通常・スプラッシュ・残留のdelivery type indexを決める
