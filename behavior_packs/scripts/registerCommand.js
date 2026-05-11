@@ -1,4 +1,4 @@
-import { system, CustomCommandParamType, CommandPermissionLevel } from "@minecraft/server";
+import { system, CustomCommandParamType, CommandPermissionLevel, CustomCommandStatus, EntityComponentTypes, ItemStack, ItemComponentTypes } from "@minecraft/server";
 import { superGiveCommand, superReplaceItemEntityCommand, superReplaceItemBlockCommand } from "./class/Commands";
 system.beforeEvents.startup.subscribe((ev) => {
     const registerCommand = function (name, description, mandatoryParameters, optionalParameters, callback) {
@@ -54,4 +54,14 @@ system.beforeEvents.startup.subscribe((ev) => {
         { name: "data", type: CustomCommandParamType.Integer },
         { name: "customData", type: CustomCommandParamType.String },
     ], superReplaceItemBlockCommand);
+    registerCommand("pyuagotto:test", "commands.replaceitem.description", [], [], (origin) => {
+        const itemStack = new ItemStack("minecraft:diamond_sword", 1);
+        const dura = itemStack.getComponent(ItemComponentTypes.Durability);
+        if (dura)
+            dura.damage = 5;
+        system.run(() => {
+            origin.sourceEntity?.getComponent(EntityComponentTypes.Inventory)?.container.addItem(itemStack);
+        });
+        return { status: CustomCommandStatus.Success };
+    });
 });
