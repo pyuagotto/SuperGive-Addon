@@ -59,9 +59,8 @@ export const convertCustomDataToJson = function (str: string): CustomData | stri
     }
 };
 
-/**
- * CustomDataのバリデーション
- */
+
+// CustomDataのバリデーション
 const checkCustomData = function (customData: CustomData): CustomData | string {
     for (const data in customData) {
         if (!customDataList[data]) return `Invalid custom data key: ${data}`;
