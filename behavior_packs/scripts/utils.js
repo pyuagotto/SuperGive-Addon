@@ -54,9 +54,7 @@ export const convertCustomDataToJson = function (str) {
         return "Custom data description format is invalid.";
     }
 };
-/**
- * CustomDataのバリデーション
- */
+// CustomDataのバリデーション
 const checkCustomData = function (customData) {
     for (const data in customData) {
         if (!customDataList[data])

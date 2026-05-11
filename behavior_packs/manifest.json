@@ -1,9 +1,9 @@
 {
     "format_version": 2,
     "header": {
-        "name": "[1.21.111]Super Give",
+        "name": "[1.26.20]Super Give",
         "description": "",
-        "uuid": "304beb95-f612-61b6-a5b4-c7a515f2595c",
+        "uuid": "304beb95-f612-61b6-a5b4-c7a141f2595c",
         "version": [
             0,
             1,
@@ -19,7 +19,7 @@
         {
             "description": "GameTest module",
             "type": "script",
-            "uuid": "75d9aa39-1b2f-4d62-a9bd-3d81ba12e5c8",
+            "uuid": "75d9aa39-1b2f-4d62-a1bd-3d81ba12e5c8",
             "version": [
                 0,
                 1,
